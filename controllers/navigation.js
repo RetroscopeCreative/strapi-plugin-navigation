@@ -47,6 +47,12 @@ module.exports = {
     return this.getService().getById(id);
   },
 
+  async getUrlById(ctx) {
+    const { params } = ctx;
+    const { navItemId } = parseParams(params);
+    return this.getService().getUrlById(navItemId);
+  },
+
   async render(ctx) {
     const { params, query = {} } = ctx;
     const { type, menu: menuOnly } = query;

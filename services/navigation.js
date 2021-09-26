@@ -191,6 +191,29 @@ module.exports = {
     };
   },
 
+  getUrlById: async (id) => {
+    const knex = strapi.connections.default;
+    let url = '';
+    let navItem = await knex('navigations_items')
+      .where('id', id)
+      .select('navigations_items.id')
+      .select('navigations_items.path')
+      .select('navigations_items.parent');
+
+    while (navItem && navItem.length && navItem[0].parent) {
+      url = '/' + navItem[0].path + '-' + navItem[0].id + url;
+      navItem = await knex('navigations_items')
+      .where('id', navItem[0].parent)
+      .select('navigations_items.id')
+      .select('navigations_items.path')
+      .select('navigations_items.parent');
+    }
+    if (navItem && navItem.length && navItem[0].path) {
+      url = '/' + navItem[0].path + '-' + navItem[0].id + url;
+    }
+    return { url };
+  },
+
   post: async (payload, auditLog) => {
     const { pluginName, masterModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     const { name, visible } = payload;
@@ -299,7 +322,7 @@ module.exports = {
       const { contentTypes, contentTypesNameFields } = await service.config();
       const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes)
 
-      switch (type?.toLowerCase()) {
+      switch (type.toLowerCase()) {
         case renderType.TREE:
         case renderType.RFR:
           const itemParser = (item, path = '', field) => {
@@ -352,7 +375,7 @@ module.exports = {
             .filter(utilsFunctions.filterOutUnpublished)
             .map((item) => ({
               ...sanitizeEntity(item, { model: itemModel }),
-              audience: item.audience?.map(_ => _.key),
+              audience: item.audience.map(_ => _.key),
               title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
               related: last(item.related),
               items: null,

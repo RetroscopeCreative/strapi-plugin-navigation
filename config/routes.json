@@ -33,6 +33,14 @@
       }
     },
     {
+      "method": "GET",
+      "path": "/url/:navItemId",
+      "handler": "navigation.getUrlById",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "PUT",
       "path": "/:id",
       "handler": "navigation.put",
