@@ -34,7 +34,7 @@
     },
     {
       "method": "GET",
-      "path": "/navitem/:url",
+      "path": "/navitem/:navId/:url",
       "handler": "navigation.getNavItemByUrl",
       "config": {
         "policies": []

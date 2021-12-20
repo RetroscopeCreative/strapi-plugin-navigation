@@ -55,10 +55,11 @@ module.exports = {
   },
 
   async getNavItemByUrl(ctx) {
-    const { params } = ctx;
-    const { url } = parseParams(params);
-    console.log('getNavItemByUrl', url);
-    return this.getService().getNavItemByUrl(url);
+    const { params, query = {} } = ctx;
+    const { url, navId } = parseParams(params);
+    const { menu } = query;
+    console.log('getNavItemByUrl', url, navId, menu);
+    return this.getService().getNavItemByUrl(url, navId);
   },
 
   async render(ctx) {

@@ -191,15 +191,16 @@ module.exports = {
     };
   },
 
-  getNavItemByUrl: async (url) => {
+  getNavItemByUrl: async (url, navId) => {
     const knex = strapi.connections.default;
     let id = 0;
     const regExpFilter1 = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
     if (regExpFilter1) {
       const urlSlug = regExpFilter1[1];
+      console.log('regExpFilter1', regExpFilter1);
       const urlId = regExpFilter1[2];
       let navItem = await knex('navigations_items')
-      .whereRaw('path = ? AND id = ?', [urlSlug, urlId])
+      .whereRaw('path = ? AND id = ? AND master = ?', [urlSlug, urlId, navId])
       .select('navigations_items.id')
       .select('navigations_items.path')
       .select('navigations_items.parent');
