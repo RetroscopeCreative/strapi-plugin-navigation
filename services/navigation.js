@@ -66,7 +66,13 @@ const getNavItem = async (navId, url, parent = null) => {
     }
   }
   if (whereStr && whereParams) {
-    let navItem = await knex('navigations_items')
+    const sql = knex('navigations_items')
+    .whereRaw(whereStr, whereParams)
+    .select('navigations_items.id')
+    .select('navigations_items.path')
+    .select('navigations_items.parent').toSQL().toNative();
+    console.log('sql', sql);
+    const navItem = await knex('navigations_items')
     .whereRaw(whereStr, whereParams)
     .select('navigations_items.id')
     .select('navigations_items.path')
