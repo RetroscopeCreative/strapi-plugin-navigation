@@ -235,7 +235,9 @@ module.exports = {
         console.log('navItem.id', navItem.id);
         const entityItem = await strapi
         .query(itemModel.modelName, pluginName)
-        .findOne(navItem.id, ['related', 'audience']);
+        .findOne({
+          id: navItem.id,
+        }, ['related', 'audience']);
   
         console.log('entityItem', entityItem);
         navItems.push(entityItem);
