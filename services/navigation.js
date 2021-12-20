@@ -232,6 +232,7 @@ module.exports = {
     for (let menuItem of menu) {
       const navItem = await getNavItem(navId, menuItem, parent);
       if (navItem) {
+        console.log('navItem.id', navItem.id);
         const entityItem = await strapi
         .query(itemModel.modelName, pluginName)
         .findOne(navItem.id, ['related', 'audience']);
