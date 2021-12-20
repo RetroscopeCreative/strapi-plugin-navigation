@@ -48,6 +48,7 @@ const getNavItem = async (navId, url, parent = null) => {
   const regExpFilter = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
   let whereStr = '';
   let whereParams = [];
+  console.log('regexp', url, regExpFilter);
   if (regExpFilter) {
     const urlSlug = regExpFilter[1];
     const urlId = regExpFilter[2];
