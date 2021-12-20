@@ -45,7 +45,7 @@ const contentTypesNameFields = get(
 
 const getNavItem = async (navId, url, parent = null) => {
   const knex = strapi.connections.default;
-  const regExpFilter = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
+  const regExpFilter = url.match(/^(.*)-([\d]+)$/i);
   let whereStr = '';
   let whereParams = [];
   console.log('regexp', url, regExpFilter);
