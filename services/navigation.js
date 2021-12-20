@@ -191,7 +191,7 @@ module.exports = {
     };
   },
 
-  getNavItem: async (navId, url, parent?) => {
+  getNavItem: async (navId, url, parent = null) => {
     const knex = strapi.connections.default;
     const regExpFilter = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
     let whereStr = '';
