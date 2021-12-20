@@ -191,9 +191,11 @@ module.exports = {
     };
   },
 
-  getNavItemByUrl: async (url, navId) => {
+  getNavItemByUrl: async (navId, menu) => {
     const knex = strapi.connections.default;
     let id = 0;
+    const url = menu.splice(0, menu.length - 1);
+    console.log('menu', menu, 'url', url);
     const regExpFilter1 = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
     if (regExpFilter1) {
       const urlSlug = regExpFilter1[1];
@@ -204,6 +206,7 @@ module.exports = {
       .select('navigations_items.id')
       .select('navigations_items.path')
       .select('navigations_items.parent');
+      console.log('navItem', navItem);
     }
     /*
     while (navItem && navItem.length && navItem[0].parent) {

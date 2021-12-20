@@ -56,10 +56,10 @@ module.exports = {
 
   async getNavItemByUrl(ctx) {
     const { params, query = {} } = ctx;
-    const { url, navId } = parseParams(params);
+    const { navId } = parseParams(params);
     const { menu } = query;
-    console.log('getNavItemByUrl', url, navId, menu);
-    return this.getService().getNavItemByUrl(url, navId);
+    console.log('getNavItemByUrl', navId, menu);
+    return this.getService().getNavItemByUrl(navId, menu);
   },
 
   async render(ctx) {
