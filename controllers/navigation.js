@@ -58,7 +58,7 @@ module.exports = {
     const { params } = ctx;
     const { url } = parseParams(params);
     console.log('getNavItemByUrl', url);
-    return this.getService().getUrlgetNavItemByUrlById(url);
+    return this.getService().getNavItemByUrl(url);
   },
 
   async render(ctx) {
