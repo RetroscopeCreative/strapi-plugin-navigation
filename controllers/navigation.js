@@ -50,7 +50,15 @@ module.exports = {
   async getUrlById(ctx) {
     const { params } = ctx;
     const { navItemId } = parseParams(params);
+    console.log('getUrlById', navItemId);
     return this.getService().getUrlById(navItemId);
+  },
+
+  async getNavItemByUrl(ctx) {
+    const { params } = ctx;
+    const { url } = parseParams(params);
+    console.log('getNavItemByUrl', url);
+    return this.getService().getUrlgetNavItemByUrlById(url);
   },
 
   async render(ctx) {

@@ -191,6 +191,35 @@ module.exports = {
     };
   },
 
+  getNavItemByUrl: async (url) => {
+    const knex = strapi.connections.default;
+    let id = 0;
+    const regExpFilter1 = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
+    if (regExpFilter1) {
+      const urlSlug = regExpFilter1[1];
+      const urlId = regExpFilter1[2];
+      let navItem = await knex('navigations_items')
+      .whereRaw('path = ? AND id = ?', [urlSlug, urlId])
+      .select('navigations_items.id')
+      .select('navigations_items.path')
+      .select('navigations_items.parent');
+    }
+    /*
+    while (navItem && navItem.length && navItem[0].parent) {
+      url = '/' + navItem[0].path + '-' + navItem[0].id + url;
+      navItem = await knex('navigations_items')
+      .where('id', navItem[0].parent)
+      .select('navigations_items.id')
+      .select('navigations_items.path')
+      .select('navigations_items.parent');
+    }
+    if (navItem && navItem.length && navItem[0].path) {
+      url = '/' + navItem[0].path + '-' + navItem[0].id + url;
+    }
+    */
+    return { id };
+  },
+
   getUrlById: async (id) => {
     const knex = strapi.connections.default;
     let url = '';

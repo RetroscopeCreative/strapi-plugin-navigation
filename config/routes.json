@@ -34,6 +34,14 @@
     },
     {
       "method": "GET",
+      "path": "/navitem/:url",
+      "handler": "navigation.getNavItemByUrl",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/url/:navItemId",
       "handler": "navigation.getUrlById",
       "config": {
