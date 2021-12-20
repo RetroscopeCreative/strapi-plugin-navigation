@@ -48,7 +48,6 @@ const getNavItem = async (navId, url, parent = null) => {
   const regExpFilter = url.match(/^(.*)-([\d]+)$/i);
   let whereStr = '';
   let whereParams = [];
-  console.log('regexp', url, regExpFilter);
   if (regExpFilter) {
     const urlSlug = regExpFilter[1];
     const urlId = regExpFilter[2];
@@ -67,12 +66,6 @@ const getNavItem = async (navId, url, parent = null) => {
     }
   }
   if (whereStr && whereParams) {
-    const sql = knex('navigations_items')
-    .whereRaw(whereStr, whereParams)
-    .select('navigations_items.id')
-    .select('navigations_items.path')
-    .select('navigations_items.parent').toSQL().toNative();
-    console.log('sql', sql);
     const navItem = await knex('navigations_items')
     .whereRaw(whereStr, whereParams)
     .select('navigations_items.id')
@@ -232,13 +225,13 @@ module.exports = {
   },
 
   getNavItemByUrl: async (navId, menu) => {
-    const knex = strapi.connections.default;
-    let id = 0;
+    const meta = utilsFunctions.extractMeta(strapi.plugins);
+    console.log('meta', strapi.plugins, '->', meta);
+
     let parent;
     const navItems = [];
     for (let menuItem of menu) {
       const navItem = await getNavItem(navId, menuItem, parent);
-      console.log('navItem', navItem);
       if (navItem) {
         navItems.push(navItem);
         parent = navItem.id;
@@ -246,40 +239,6 @@ module.exports = {
         break;
       }
     }
-
-    /*
-    const url = menu[menu.length - 1];
-    menu = menu.slice(0, menu.length - 1);
-
-
-
-    console.log('menu', menu, 'url', url);
-    const regExpFilter1 = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
-    if (regExpFilter1) {
-      const urlSlug = regExpFilter1[1];
-      console.log('regExpFilter1', regExpFilter1);
-      const urlId = regExpFilter1[2];
-      let navItem = await knex('navigations_items')
-      .whereRaw('path = ? AND id = ? AND master = ?', [urlSlug, urlId, navId])
-      .select('navigations_items.id')
-      .select('navigations_items.path')
-      .select('navigations_items.parent');
-      console.log('navItem', navItem);
-    }
-    */
-    /*
-    while (navItem && navItem.length && navItem[0].parent) {
-      url = '/' + navItem[0].path + '-' + navItem[0].id + url;
-      navItem = await knex('navigations_items')
-      .where('id', navItem[0].parent)
-      .select('navigations_items.id')
-      .select('navigations_items.path')
-      .select('navigations_items.parent');
-    }
-    if (navItem && navItem.length && navItem[0].path) {
-      url = '/' + navItem[0].path + '-' + navItem[0].id + url;
-    }
-    */
     return { navItems };
   },
 
