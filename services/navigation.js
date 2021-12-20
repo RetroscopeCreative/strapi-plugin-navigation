@@ -194,7 +194,8 @@ module.exports = {
   getNavItemByUrl: async (navId, menu) => {
     const knex = strapi.connections.default;
     let id = 0;
-    const url = menu.slice(menu.length - 1);
+    const url = menu[menu.length - 1];
+    menu = menu.slice(0, menu.length - 1);
     console.log('menu', menu, 'url', url);
     const regExpFilter1 = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
     if (regExpFilter1) {
