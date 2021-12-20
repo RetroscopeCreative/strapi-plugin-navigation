@@ -191,11 +191,61 @@ module.exports = {
     };
   },
 
+  getNavItem: async (navId, url, parent?) => {
+    const knex = strapi.connections.default;
+    const regExpFilter = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
+    let whereStr = '';
+    let whereParams = [];
+    if (regExpFilter) {
+      const urlSlug = regExpFilter[1];
+      const urlId = regExpFilter[2];
+      whereStr = 'path = ? AND id = ? AND master = ?';
+      whereParams = [urlSlug, urlId, navId];
+      if (parent) {
+        whereStr = 'path = ? AND id = ? AND master = ? AND parent = ?';
+        whereParams = [urlSlug, urlId, navId, parent];
+      }
+    } else {
+      whereStr = 'path = ? AND master = ?';
+      whereParams = [url, navId];
+      if (parent) {
+        whereStr = 'path = ? AND master = ? AND parent = ?';
+        whereParams = [url, navId, parent];
+      }
+    }
+    if (whereStr && whereParams) {
+      let navItem = await knex('navigations_items')
+      .whereRaw(whereStr, whereParams)
+      .select('navigations_items.id')
+      .select('navigations_items.path')
+      .select('navigations_items.parent');
+      return navItem[0];
+    }
+    return false;
+}
+
   getNavItemByUrl: async (navId, menu) => {
     const knex = strapi.connections.default;
     let id = 0;
+    let parent;
+    const navItems = [];
+    for (let menuItem of menu) {
+      const navItem = await this.getNavItem(navId, menuItem, parent);
+      console.log('navItem', navItem);
+      if (navItem) {
+        navItems.push(navItem);
+        parent = navItem.id;
+      } else {
+        break;
+      }
+    }
+
+    /*
     const url = menu[menu.length - 1];
     menu = menu.slice(0, menu.length - 1);
+
+
+
     console.log('menu', menu, 'url', url);
     const regExpFilter1 = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
     if (regExpFilter1) {
@@ -209,6 +259,7 @@ module.exports = {
       .select('navigations_items.parent');
       console.log('navItem', navItem);
     }
+    */
     /*
     while (navItem && navItem.length && navItem[0].parent) {
       url = '/' + navItem[0].path + '-' + navItem[0].id + url;
@@ -222,7 +273,7 @@ module.exports = {
       url = '/' + navItem[0].path + '-' + navItem[0].id + url;
     }
     */
-    return { id };
+    return { navItems };
   },
 
   getUrlById: async (id) => {
