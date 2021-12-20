@@ -225,15 +225,18 @@ module.exports = {
   },
 
   getNavItemByUrl: async (navId, menu) => {
-    const meta = utilsFunctions.extractMeta(strapi.plugins);
-    console.log('meta', strapi.plugins, '->', meta);
+    const { pluginName, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
 
     let parent;
     const navItems = [];
     for (let menuItem of menu) {
       const navItem = await getNavItem(navId, menuItem, parent);
       if (navItem) {
-        navItems.push(navItem);
+        const entityItem = await strapi
+        .query(itemModel.modelName, pluginName)
+        .findOne(navItem.id, ['related', 'audience']);
+  
+        navItems.push(entityItem);
         parent = navItem.id;
       } else {
         break;
