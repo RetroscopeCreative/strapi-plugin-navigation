@@ -222,7 +222,7 @@ module.exports = {
       return navItem[0];
     }
     return false;
-}
+  },
 
   getNavItemByUrl: async (navId, menu) => {
     const knex = strapi.connections.default;
