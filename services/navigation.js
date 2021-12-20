@@ -43,6 +43,39 @@ const contentTypesNameFields = get(
   {},
 );
 
+const getNavItem = async (navId, url, parent = null) => {
+  const knex = strapi.connections.default;
+  const regExpFilter = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
+  let whereStr = '';
+  let whereParams = [];
+  if (regExpFilter) {
+    const urlSlug = regExpFilter[1];
+    const urlId = regExpFilter[2];
+    whereStr = 'path = ? AND id = ? AND master = ?';
+    whereParams = [urlSlug, urlId, navId];
+    if (parent) {
+      whereStr = 'path = ? AND id = ? AND master = ? AND parent = ?';
+      whereParams = [urlSlug, urlId, navId, parent];
+    }
+  } else {
+    whereStr = 'path = ? AND master = ?';
+    whereParams = [url, navId];
+    if (parent) {
+      whereStr = 'path = ? AND master = ? AND parent = ?';
+      whereParams = [url, navId, parent];
+    }
+  }
+  if (whereStr && whereParams) {
+    let navItem = await knex('navigations_items')
+    .whereRaw(whereStr, whereParams)
+    .select('navigations_items.id')
+    .select('navigations_items.path')
+    .select('navigations_items.parent');
+    return navItem[0];
+  }
+  return false;
+};
+
 module.exports = {
   // Get plugin configuration
   config: async () => {
@@ -191,46 +224,13 @@ module.exports = {
     };
   },
 
-  getNavItem: async (navId, url, parent = null) => {
-    const knex = strapi.connections.default;
-    const regExpFilter = url.match(new RegExp('^(.*)-([\d]+)$', 'i'));
-    let whereStr = '';
-    let whereParams = [];
-    if (regExpFilter) {
-      const urlSlug = regExpFilter[1];
-      const urlId = regExpFilter[2];
-      whereStr = 'path = ? AND id = ? AND master = ?';
-      whereParams = [urlSlug, urlId, navId];
-      if (parent) {
-        whereStr = 'path = ? AND id = ? AND master = ? AND parent = ?';
-        whereParams = [urlSlug, urlId, navId, parent];
-      }
-    } else {
-      whereStr = 'path = ? AND master = ?';
-      whereParams = [url, navId];
-      if (parent) {
-        whereStr = 'path = ? AND master = ? AND parent = ?';
-        whereParams = [url, navId, parent];
-      }
-    }
-    if (whereStr && whereParams) {
-      let navItem = await knex('navigations_items')
-      .whereRaw(whereStr, whereParams)
-      .select('navigations_items.id')
-      .select('navigations_items.path')
-      .select('navigations_items.parent');
-      return navItem[0];
-    }
-    return false;
-  },
-
   getNavItemByUrl: async (navId, menu) => {
     const knex = strapi.connections.default;
     let id = 0;
     let parent;
     const navItems = [];
     for (let menuItem of menu) {
-      const navItem = await this.getNavItem(navId, menuItem, parent);
+      const navItem = await getNavItem(navId, menuItem, parent);
       console.log('navItem', navItem);
       if (navItem) {
         navItems.push(navItem);
