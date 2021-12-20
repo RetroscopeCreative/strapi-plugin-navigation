@@ -237,6 +237,7 @@ module.exports = {
         .query(itemModel.modelName, pluginName)
         .findOne(navItem.id, ['related', 'audience']);
   
+        console.log('entityItem', entityItem);
         navItems.push(entityItem);
         parent = navItem.id;
       } else {
