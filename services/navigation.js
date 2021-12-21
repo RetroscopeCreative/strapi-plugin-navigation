@@ -257,6 +257,7 @@ module.exports = {
   getNavItemByUrl: async (navId, menu) => {
     const { pluginName, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
 
+    const originalMenu = menu.slice();
     let parent;
     const navItems = [];
     const menuItems = [];
@@ -279,8 +280,8 @@ module.exports = {
       }
     }
     if (!navItems.length) {
-      console.log('altNav??', menu.join('/'));
-      const altNavItem = await getAltNavItem(navId, menu.join('/'));
+      console.log('altNav??', originalMenu.join('/'));
+      const altNavItem = await getAltNavItem(navId, originalMenu.join('/'));
       console.log('altNavItem', altNavItem);
     }
     return { navItems };
