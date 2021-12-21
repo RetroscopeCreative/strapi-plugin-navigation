@@ -73,7 +73,7 @@ const getNavItem = async (navId, url, parent = null, parentSlug = '') => {
     .select('navigations_items.parent');
     console.log('navItem?', navItem);
     if (!navItem.length) {
-      const slug = parentSlug + (parentSlug ? '/' : '') + 'url';
+      const slug = parentSlug + (parentSlug ? '/' : '') + url;
       console.log('search in alternate path', slug);
       whereStr = `REPLACE(alternate_path, '\\', '') LIKE '%"${slug}"%' AND master = ?`;
       whereParams = [navId];
