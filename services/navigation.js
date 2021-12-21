@@ -88,18 +88,13 @@ const getAltNavItem = async (navId, url) => {
   console.log('search in alternate path', slug);
   whereStr = `REPLACE(alternate_path, '\\\\', '') LIKE '%"${slug}"%' AND master = ?`;
   whereParams = [navId];
-  const sql = knex('navigations_items')
-  .whereRaw(whereStr, whereParams)
-  .select('navigations_items.id')
-  .select('navigations_items.path')
-  .select('navigations_items.parent').toSQL().toNative();
-  console.log('alternate sql', sql);
   const navItem = await knex('navigations_items')
     .whereRaw(whereStr, whereParams)
     .select('navigations_items.id')
     .select('navigations_items.path')
     .select('navigations_items.parent');
   if (navItem.length) {
+
     return navItem[0];
   }
 
@@ -280,9 +275,28 @@ module.exports = {
       }
     }
     if (!navItems.length) {
-      console.log('altNav??', originalMenu.join('/'));
       const altNavItem = await getAltNavItem(navId, originalMenu.join('/'));
-      console.log('altNavItem', altNavItem);
+      if (altNavItem.length) {
+        console.log('altNavItem', altNavItem);
+        let entityItem = await strapi
+        .query(itemModel.modelName, pluginName)
+        .findOne({
+          id: altNavItem.id,
+        }, ['related', 'audience']);
+        navItems.unshift(entityItem);
+        console.log('altNavItem entityItem', entityItem);
+        let currentNavItem = entityItem;
+        while (currentNavItem.parent) {
+          const entityItem = await strapi
+          .query(itemModel.modelName, pluginName)
+          .findOne({
+            id: currentNavItem.parent,
+          }, ['related', 'audience']);
+          navItems.unshift(entityItem);
+          currentNavItem = entityItem;
+        }
+        console.log('altNavItems', navItems);
+      }
     }
     return { navItems };
   },
