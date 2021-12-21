@@ -277,7 +277,7 @@ module.exports = {
     }
     if (!navItems.length) {
       const altNavItem = await getAltNavItem(navId, originalMenu.join('/'));
-      if (altNavItem.length) {
+      if (altNavItem) {
         console.log('altNavItem', altNavItem);
         let entityItem = await strapi
         .query(itemModel.modelName, pluginName)
