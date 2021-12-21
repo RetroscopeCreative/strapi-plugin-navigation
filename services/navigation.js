@@ -43,7 +43,7 @@ const contentTypesNameFields = get(
   {},
 );
 
-const getNavItem = async (navId, url, parent = null) => {
+const getNavItem = async (navId, url, parent = null, menu) => {
   const knex = strapi.connections.default;
   const regExpFilter = url.match(/^(.*)-([\d]+)$/i);
   let whereStr = '';
@@ -66,11 +66,32 @@ const getNavItem = async (navId, url, parent = null) => {
     }
   }
   if (whereStr && whereParams) {
-    const navItem = await knex('navigations_items')
+    let navItem = await knex('navigations_items')
     .whereRaw(whereStr, whereParams)
     .select('navigations_items.id')
     .select('navigations_items.path')
     .select('navigations_items.parent');
+    if (!navItem) {
+      const slug = menu.join('/');
+      console.log('search in alternate path', slug);
+      whereStr = `REPLACE(alternate_path, '\\', '') LIKE '%"${slug}"%' AND master = ?`;
+      whereParams = [navId];
+      if (parent) {
+        whereStr = `REPLACE(alternate_path, '\\', '') LIKE '%"${slug}"%' AND master = ? AND parent = ?`;
+        whereParams = [navId, parent];
+      }
+      const sql = knex('navigations_items')
+      .whereRaw(whereStr, whereParams)
+      .select('navigations_items.id')
+      .select('navigations_items.path')
+      .select('navigations_items.parent').toSql().toNative();
+      console.log('alternate sql', sql);
+      navItem = await knex('navigations_items')
+        .whereRaw(whereStr, whereParams)
+        .select('navigations_items.id')
+        .select('navigations_items.path')
+        .select('navigations_items.parent');
+    }
     return navItem[0];
   }
   return false;
@@ -230,7 +251,7 @@ module.exports = {
     let parent;
     const navItems = [];
     for (let menuItem of menu) {
-      const navItem = await getNavItem(navId, menuItem, parent);
+      const navItem = await getNavItem(navId, menuItem, parent, menu);
       if (navItem) {
         console.log('navItem.id', navItem.id);
         const entityItem = await strapi
