@@ -85,7 +85,7 @@ const getNavItem = async (navId, url, parent = null, menu) => {
       .whereRaw(whereStr, whereParams)
       .select('navigations_items.id')
       .select('navigations_items.path')
-      .select('navigations_items.parent').toSql().toNative();
+      .select('navigations_items.parent').toSQL().toNative();
       console.log('alternate sql', sql);
       navItem = await knex('navigations_items')
         .whereRaw(whereStr, whereParams)
