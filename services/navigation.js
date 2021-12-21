@@ -43,7 +43,7 @@ const contentTypesNameFields = get(
   {},
 );
 
-const getNavItem = async (navId, url, parent = null, menu) => {
+const getNavItem = async (navId, url, parent = null, parentSlug = '') => {
   const knex = strapi.connections.default;
   const regExpFilter = url.match(/^(.*)-([\d]+)$/i);
   let whereStr = '';
@@ -73,7 +73,7 @@ const getNavItem = async (navId, url, parent = null, menu) => {
     .select('navigations_items.parent');
     console.log('navItem?', navItem);
     if (!navItem.length) {
-      const slug = menu.join('/');
+      const slug = parentSlug + (parentSlug ? '/' : '') + 'url';
       console.log('search in alternate path', slug);
       whereStr = `REPLACE(alternate_path, '\\', '') LIKE '%"${slug}"%' AND master = ?`;
       whereParams = [navId];
@@ -93,7 +93,9 @@ const getNavItem = async (navId, url, parent = null, menu) => {
         .select('navigations_items.path')
         .select('navigations_items.parent');
     }
-    return navItem[0];
+    if (navItem.length) {
+      return navItem[0];
+    }
   }
   return false;
 };
@@ -251,8 +253,10 @@ module.exports = {
 
     let parent;
     const navItems = [];
+    const menuItems = [];
     for (let menuItem of menu) {
-      const navItem = await getNavItem(navId, menuItem, parent, menu);
+      const navItem = await getNavItem(navId, menuItem, parent, menuItems);
+      menuItems.push(menuItem);
       if (navItem) {
         console.log('navItem.id', navItem.id);
         const entityItem = await strapi
@@ -267,6 +271,9 @@ module.exports = {
       } else {
         break;
       }
+    }
+    if (!navItems.length) {
+      const altNavItem = await getNavItem(navId, menu.join('/'));
     }
     return { navItems };
   },
