@@ -86,7 +86,7 @@ const getAltNavItem = async (navId, url) => {
 
   const slug = url;
   console.log('search in alternate path', slug);
-  whereStr = `REPLACE(alternate_path, \`\\\`, \`\`) LIKE \`%"${slug}"%\` AND master = ?`;
+  whereStr = `REPLACE(alternate_path, '\\\\', '') LIKE '%"${slug}"%' AND master = ?`;
   whereParams = [navId];
   const sql = knex('navigations_items')
   .whereRaw(whereStr, whereParams)
