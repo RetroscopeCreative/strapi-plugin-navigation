@@ -71,7 +71,8 @@ const getNavItem = async (navId, url, parent = null, menu) => {
     .select('navigations_items.id')
     .select('navigations_items.path')
     .select('navigations_items.parent');
-    if (!navItem) {
+    console.log('navItem?', navItem);
+    if (!navItem.length) {
       const slug = menu.join('/');
       console.log('search in alternate path', slug);
       whereStr = `REPLACE(alternate_path, '\\', '') LIKE '%"${slug}"%' AND master = ?`;
