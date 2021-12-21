@@ -93,6 +93,7 @@ const getAltNavItem = async (navId, url) => {
     .select('navigations_items.id')
     .select('navigations_items.path')
     .select('navigations_items.parent');
+  console.log('altNav result', navItem);
   if (navItem.length) {
 
     return navItem[0];
