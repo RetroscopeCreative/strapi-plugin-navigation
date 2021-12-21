@@ -85,7 +85,7 @@ const getAltNavItem = async (navId, url) => {
   let whereParams = [];
 
   const slug = url;
-  console.log('search in alternate path', slug);
+  // console.log('search in alternate path', slug);
   whereStr = `REPLACE(alternate_path, '\\\\', '') LIKE '%"${slug}"%' AND master = ?`;
   whereParams = [navId];
   const navItem = await knex('navigations_items')
@@ -93,7 +93,7 @@ const getAltNavItem = async (navId, url) => {
     .select('navigations_items.id')
     .select('navigations_items.path')
     .select('navigations_items.parent');
-  console.log('altNav result', navItem);
+  // console.log('altNav result', navItem);
   if (navItem.length) {
 
     return navItem[0];
@@ -261,14 +261,14 @@ module.exports = {
       const navItem = await getNavItem(navId, menuItem, parent, menuItems);
       menuItems.push(menuItem);
       if (navItem) {
-        console.log('navItem.id', navItem.id);
+        // console.log('navItem.id', navItem.id);
         const entityItem = await strapi
         .query(itemModel.modelName, pluginName)
         .findOne({
           id: navItem.id,
         }, ['related', 'audience']);
   
-        console.log('entityItem', entityItem);
+        // console.log('entityItem', entityItem);
         navItems.push(entityItem);
         parent = navItem.id;
       } else {
@@ -278,14 +278,14 @@ module.exports = {
     if (!navItems.length) {
       const altNavItem = await getAltNavItem(navId, originalMenu.join('/'));
       if (altNavItem) {
-        console.log('altNavItem', altNavItem);
+        // console.log('altNavItem', altNavItem);
         let entityItem = await strapi
         .query(itemModel.modelName, pluginName)
         .findOne({
           id: altNavItem.id,
         }, ['related', 'audience']);
         navItems.unshift(entityItem);
-        console.log('altNavItem entityItem', entityItem);
+        // console.log('altNavItem entityItem', entityItem);
         let currentNavItem = entityItem;
         while (currentNavItem.parent) {
           const entityItem = await strapi
@@ -296,7 +296,7 @@ module.exports = {
           navItems.unshift(entityItem);
           currentNavItem = entityItem;
         }
-        console.log('altNavItems', navItems);
+        // console.log('altNavItems', navItems);
       }
     }
     return { navItems };
