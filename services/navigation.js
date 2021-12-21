@@ -43,7 +43,7 @@ const contentTypesNameFields = get(
   {},
 );
 
-const getNavItem = async (navId, url, parent = null, parentSlug = '') => {
+const getNavItem = async (navId, url, parent = null) => {
   const knex = strapi.connections.default;
   const regExpFilter = url.match(/^(.*)-([\d]+)$/i);
   let whereStr = '';
@@ -71,32 +71,38 @@ const getNavItem = async (navId, url, parent = null, parentSlug = '') => {
     .select('navigations_items.id')
     .select('navigations_items.path')
     .select('navigations_items.parent');
-    console.log('navItem?', navItem);
-    if (!navItem.length) {
-      const slug = parentSlug + (parentSlug ? '/' : '') + url;
-      console.log('search in alternate path', slug);
-      whereStr = `REPLACE(alternate_path, '\\', '') LIKE '%"${slug}"%' AND master = ?`;
-      whereParams = [navId];
-      if (parent) {
-        whereStr = `REPLACE(alternate_path, '\\', '') LIKE '%"${slug}"%' AND master = ? AND parent = ?`;
-        whereParams = [navId, parent];
-      }
-      const sql = knex('navigations_items')
-      .whereRaw(whereStr, whereParams)
-      .select('navigations_items.id')
-      .select('navigations_items.path')
-      .select('navigations_items.parent').toSQL().toNative();
-      console.log('alternate sql', sql);
-      navItem = await knex('navigations_items')
-        .whereRaw(whereStr, whereParams)
-        .select('navigations_items.id')
-        .select('navigations_items.path')
-        .select('navigations_items.parent');
-    }
     if (navItem.length) {
       return navItem[0];
     }
   }
+  return false;
+};
+
+const getAltNavItem = async (navId, url) => {
+  const knex = strapi.connections.default;
+  const regExpFilter = url.match(/^(.*)-([\d]+)$/i);
+  let whereStr = '';
+  let whereParams = [];
+
+  const slug = url;
+  console.log('search in alternate path', slug);
+  whereStr = `REPLACE(alternate_path, \`\\\`, \`\`) LIKE \`%"${slug}"%\` AND master = ?`;
+  whereParams = [navId];
+  const sql = knex('navigations_items')
+  .whereRaw(whereStr, whereParams)
+  .select('navigations_items.id')
+  .select('navigations_items.path')
+  .select('navigations_items.parent').toSQL().toNative();
+  console.log('alternate sql', sql);
+  const navItem = await knex('navigations_items')
+    .whereRaw(whereStr, whereParams)
+    .select('navigations_items.id')
+    .select('navigations_items.path')
+    .select('navigations_items.parent');
+  if (navItem.length) {
+    return navItem[0];
+  }
+
   return false;
 };
 
@@ -273,7 +279,9 @@ module.exports = {
       }
     }
     if (!navItems.length) {
-      const altNavItem = await getNavItem(navId, menu.join('/'));
+      console.log('altNav??', menu.join('/'));
+      const altNavItem = await getAltNavItem(navId, menu.join('/'));
+      console.log('altNavItem', altNavItem);
     }
     return { navItems };
   },
